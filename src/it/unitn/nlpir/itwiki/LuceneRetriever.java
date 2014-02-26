@@ -25,6 +25,8 @@ import org.apache.lucene.util.Version;
  */
 public class LuceneRetriever {
 	
+	private static final String SEP = "\t";
+	
 	private int maxtHits;
 	private QueryParser parser;
 	private IndexSearcher searcher;
@@ -93,14 +95,63 @@ public class LuceneRetriever {
 	}
 	
 	public static void main(String[] args) {
-		LuceneRetriever retriever = new LuceneRetriever(10, "text", "index_old");
+		String usage = "java it.unitn.nlpir.itwiki.LuceneRetriever"
+					 + " [-index dir] [-query string]"
+					 + " [-maxHits hitsNum] [-similarity class]\n\n"
+					 + "Print the documents satifying the query";		
+
+		int maxHits = 1;
+		String query = null;
+		String index = "index";
+		Similarity similarity = null;
 		
-		String query = "Qual è il nome dell'amministratore delegato di Apple computer?";
+		for (int i = 0; i < args.length; i++) {
+			if ("-index".equals(args[i])) {
+				index = args[i + 1];
+				i++;
+			} 
+			else if ("-query".equals(args[i])) {
+				query = args[i + 1];
+				i++;
+			} 
+			else if ("-maxHits".equals(args[i])) {
+				maxHits = Integer.parseInt(args[i + 1]);
+				if (maxHits <= 0) {
+					System.err.println("There must be at least 1 hit");
+					System.exit(-1);
+				}
+				i++;
+			}
+			else if ("-similarity".equals(args[i])) {
+				try {
+					similarity = 
+							(Similarity) Class.forName(args[i + 1]).newInstance();
+				} catch (Exception e) {
+					System.err.println("Error while loading similarity class '" + similarity + "'");
+					System.exit(-1);
+				}
+				i++;
+			}
+		}
+		
+		if (query == null) {
+			System.err.println("-query not set.\n" + usage);
+			System.exit(-1);
+		}
+		
+		final File indexDir = new File(index);
+		if (!indexDir.isDirectory()) {
+			System.out.println("Directory '" + indexDir.getAbsolutePath() + "' does not exist, please check the path");
+			System.exit(-1);
+		}
+					 
+		LuceneRetriever retriever = new LuceneRetriever(maxHits, "text", index);
+		if (similarity != null) { 
+			retriever.setSimilarity(similarity);
+		}
 		
 		TopDocs hits = retriever.retrieve(query);
 		ScoreDoc[] scoreDocs = hits.scoreDocs;
-		
-		System.out.println("hits num: " + scoreDocs.length);
 		
 		for (int i = 0; i < scoreDocs.length; i++) {
 			Document doc = retriever.getDocumentById(scoreDocs[i].doc);
@@ -109,9 +160,8 @@ public class LuceneRetriever {
 			String rankingPos = Integer.toString(i + 1);
 			String rankingString = String.valueOf(scoreDocs[i].score);
 			
-			System.out.printf("docId: %s, docText: %s, rankingPos: %s, rankingString: %s\n", docId, docText, rankingPos, rankingString);
+			System.out.println(docId + SEP + docText + SEP + rankingPos + SEP + rankingString);	
 		}
-	}
-	
+	}	
 	
 }
