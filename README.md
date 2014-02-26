@@ -1,4 +1,4 @@
 Itwiki
 ======
 
-Indexign and retrieving tools for the itwiki corpus.
+Indexing and retrieving tools for the itwiki corpus.
