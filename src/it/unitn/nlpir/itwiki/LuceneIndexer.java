@@ -1,5 +1,7 @@
 package it.unitn.nlpir.itwiki;
 
+import it.unitn.nlpir.itwiki.filters.DocumentFilter;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,12 +28,15 @@ public class LuceneIndexer {
 	public static void main(String[] args) {
 		
 		String usage = "java it.unitn.nlpir.itwiki.LuceneIndexer"
-					 + " [-index INDEX_PATH] [-doc DOC_PATH]\n\n"
+					 + " [-index INDEX_PATH] [-doc DOC_PATH]"
+					 + " [-docFilter (none|wordsNumLe5)]\n\n"
 					 + "This indexes the documents in DOC_PATH creating a Lucene index"
 					 + "in INDEX_PATH that can be searched with LuceneRetriever";
 		
 		String indexPath = "index";
 		String docPath = null;
+		String docFilterName = "none";
+		
 		for (int i = 0; i < args.length; i++) {
 			if ("-index".equals(args[i])) {
 				indexPath = args[i + 1];
@@ -39,11 +44,14 @@ public class LuceneIndexer {
 			} else if ("-doc".equals(args[i])) {
 				docPath = args[i + 1];
 				i++;
+			} else if ("-docFilter".equals(args[i])) {
+				docFilterName = args[i + 1];
+				i++;
 			}
 		}
 		
 		if (docPath == null) {
-			System.err.println("Usage: " + usage);
+			System.err.println("-docPath not set.\nUsage: " + usage);
 			System.exit(-1);
 		}
 		
@@ -52,6 +60,8 @@ public class LuceneIndexer {
 			System.out.println("File '" + docFile.getAbsolutePath() + "' does not exist or is not redable, please check the path");
 			System.exit(-1);
 		}
+		
+		final DocumentFilter docFilter = DocumentFilter.newInstance(docFilterName);
 		
 		Date start = new Date();
 		
@@ -88,7 +98,7 @@ public class LuceneIndexer {
 			iwc.setRAMBufferSizeMB(256.0);
 			
 			IndexWriter writer = new IndexWriter(indexDir, iwc);
-			indexDoc(writer, docFile);
+			indexDoc(writer, docFile, docFilter);
 			
 			writer.close();
 			Date end = new Date();
@@ -104,9 +114,10 @@ public class LuceneIndexer {
 	 * @param writer
 	 * @param docFile
 	 */
-	private static void indexDoc(IndexWriter writer, File docFile) throws IOException  {
+	private static void indexDoc(IndexWriter writer, File docFile, DocumentFilter docFilter) throws IOException  {
 		assert writer != null;
 		assert docFile != null;
+		assert docFilter != null;
 		
 		try (BufferedReader br = 
 				new BufferedReader(
@@ -127,64 +138,20 @@ public class LuceneIndexer {
 				
 				Field docIdField = new StringField("docId", docId, Field.Store.YES);
 				doc.add(docIdField);
-				
+			
 				Field textField = new TextField("text", text, Field.Store.YES);
 				doc.add(textField);
 				
-				writer.updateDocument(new Term("docId", docId), doc);
+				if (!docFilter.isFiltered(doc)) {
+					writer.updateDocument(new Term("docId", docId), doc);
+				}
+				//} else {
+				//	System.out.printf("Filtered document with id '%s' and text '%s'\n", docId, text);
+				//}
 				
 				lineNum++;
 			}
 		}
-		/*
-		
-		 
-		
-	
-
-			
-			BufferedReader br = 
-					new  BufferedReader(
-							new InputStreamReader(
-									new FileInputStream(itwikiFilepath), "UTF-8"));
-			
-			String docId = null;
-			String text = null;
-			int lineNum = 0;
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				
-				String[] lineSplit = line.split("\t");
-				
-				if (lineSplit.length != 3) {
-					System.out.printf("line num %d does not respect format: <docId> <tab> <text> <tab> <SKIP_STUFF>\n", lineNum++);
-					continue;
-				}
-				
-				docId = lineSplit[0];
-				text = lineSplit[1];
-				
-				// make a new, empty document
-				Document doc = new Document();
-				
-				Field docIdField = new StringField("docId", docId, Field.Store.YES);
-				doc.add(docIdField);
-				
-				Field textField = new TextField("text", text, Field.Store.YES);
-				doc.add(textField);
-				
-				//writer.addDocument(doc);
-				writer.updateDocument(new Term("docId", docId), doc);		
-				
-				lineNum++;
-			}			
-			
-			writer.close();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		
-		*/
 	}
 
 }
