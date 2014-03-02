@@ -11,7 +11,7 @@ public class JavaPattern implements Pattern {
 			throw new NullPointerException("regex is null");
 		}
 		
-		this.pattern = java.util.regex.Pattern.compile(regex);		
+		this.pattern = java.util.regex.Pattern.compile(regex, java.util.regex.Pattern.CASE_INSENSITIVE);		
 	}
 
 	@Override

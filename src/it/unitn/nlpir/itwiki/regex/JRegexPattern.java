@@ -1,6 +1,7 @@
 package it.unitn.nlpir.itwiki.regex;
 
 import jregex.Matcher;
+import jregex.REFlags;
 
 public class JRegexPattern implements Pattern {
 	
@@ -11,7 +12,7 @@ public class JRegexPattern implements Pattern {
 			throw new NullPointerException("regex is null");
 		}
 		
-		this.pattern = new jregex.Pattern(regex);
+		this.pattern = new jregex.Pattern(regex, REFlags.IGNORE_CASE);
 	}
 
 	@Override

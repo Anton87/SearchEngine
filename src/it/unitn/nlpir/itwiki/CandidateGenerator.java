@@ -54,10 +54,20 @@ public class CandidateGenerator {
 			}
 		}
 			
-		if (index == null || questions == null || candidates == null) {
-			System.err.println("Usage: " + usage);
+		if (index == null)  {
+			System.err.println("-index not set.\nUsage: " + usage);
 			System.exit(-1);
 		}		
+		
+		if (questions == null) {
+			System.err.println("-questions not set.\nUsage: " + usage);
+			System.exit(-1);
+		}
+		
+		if (candidates == null) { 
+			System.err.println("-candidates not set.\nUsage: " + usage);
+			System.exit(-1);
+		}
 			
 		final File questionsFile = new File(questions);
 		if (!questionsFile.isFile() || !questionsFile.canRead()) {

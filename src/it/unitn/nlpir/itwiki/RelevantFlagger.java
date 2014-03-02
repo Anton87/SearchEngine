@@ -21,12 +21,12 @@ public class RelevantFlagger {
 		
 		String usage = "java it.unitn.nlpir.itwiki.RelevantFlagger"
 					 + " [-patterns PATTERNS_PATH] [-candidates CANDIDATES_PATH]"
-					 + " [-relevantCandidates RELEVANT_PATH] [-pattern (java|jregex)]\n\n"
+					 + " [-relevantCandidates RELEVANT_PATH] [-patternlib (java|jregex)]\n\n"
 					 + "Set the relevant flag for candidate answers in candidates File.";
 		
 		String patterns = null;
 		String candidates = null;
-		String patternImpl = "java";
+		String patternlib = "java";
 		String relevantCandidates = null;
 		
 		for (int i = 0; i < args.length; i++) {
@@ -43,7 +43,7 @@ public class RelevantFlagger {
 				i++;
 			}
 			else if ("-pattern".equals(args[i])) {
-				patternImpl = args[i + 1];
+				patternlib = args[i + 1];
 				i++;
 			}
 		}
@@ -69,7 +69,7 @@ public class RelevantFlagger {
 		final File candidatesFile = new File(candidates);
 		doesFileExistOrExit(candidatesFile);
 		
-		final PatternFactory patternFactory = PatternFactory.getFactory(patternImpl);
+		final PatternFactory patternFactory = PatternFactory.getFactory(patternlib);
 		
 		try (				
 				BufferedReader in = new BufferedReader(
