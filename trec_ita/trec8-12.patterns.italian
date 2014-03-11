@@ -474,7 +474,7 @@
 245 Carolinas?
 245 N\.C\.?
 246 via\s*del\s*mare\s*attorno\s*l'\s*Africa
-246 via\s+del\mare.*India
+246 via\s+del\s+mare.*India
 246 navigare.*India
 247 Nord
 247 Unione
@@ -1081,7 +1081,7 @@
 428 Boston
 429 Princeton
 430 nord.*Spagna
-430 Spagna.*settentrion(?e|ale)
+430 Spagna.*settentrion(?:e|ale)
 430 Francia\s+sud\s*-?\s*occident(?:e|ale)
 430 Francia.*sothwest(ern)?
 430 Spagna
@@ -2262,7 +2262,7 @@
 748 stud.+chimpanzees
 748 stud.+scimpanzé
 748 save\s+chimpanzees\s+from\s+extinction
-748 salva(?re)?\s+gli\s+scimpanzé\s+dall'estinzione
+748 salva(?:re)?\s+gli\s+scimpanzé\s+dall'estinzione
 748 Einstein.+physics.+Goodall.+behavioral\s+sciences
 748 research\s+of.+chimpanzees
 748 ricerca\s+di\s+scimpanzé
@@ -3302,7 +3302,7 @@
 1075 nerve damage
 1075 nerves are dying
 1075 Genetic Defect
-1076 Ira(?q|cheno)
+1076 Ira(?:q|cheno)
 1076 Basra
 1076 Middle East
 1076 Medio Oriente
@@ -3519,7 +3519,7 @@
 1151 hanboks?
 1152 Fat Tuesday
 1152 Marted[iì] Grasso
-1152 giorno prima (?di\s+)?Quaresima
+1152 giorno prima (?:di\s+)?Quaresima
 1152 giorno prima delle Ceneri
 1152 Shrove Tuesday
 1152 pre\-lent(en)?
@@ -3736,7 +3736,7 @@
 1216 irritation
 1216 jaw joint
 1216 disk that connects
-1218 14\s*\Ott\s*\.?,? 1890
+1218 14\s*Ott\s*\.?,? 1890
 1218 14 Ottobre 1890
 1219 (Integr)?ated Services? D(igital|ata) Ne(twork)?.*
 1219 Integrated Service Digital Network
@@ -4528,7 +4528,7 @@
 1603 1865
 1604 rhythm and blues
 1605 26(.2)?\s?-?\s?miles?
-1605 26([.,2]?\s?-\s?migli[ao]
+1605 26([.,2])?\s?-\s?migli[ao]
 1605 42[.,]195 kilometri
 1606 212 degrees Fahrenheit
 1606 212 gradi 

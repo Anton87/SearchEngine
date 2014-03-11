@@ -1,12 +1,10 @@
 PROJECT_HOME="/home/antonio/workspace-java/Itwiki"
 
-<<COMMENT
 java -cp .:../libs/*:../bin it.unitn.nlpir.itwiki.CandidateGenerator \
      -index "$PROJECT_HOME/wordsNumGt5Index" \
      -questions "../trec/trec13.test.questions.italian.txt"  \
      -maxHits 100 \
      -candidates "$PROJECT_HOME/target/candidates-test"
-COMMENT
     
 java -cp .:../libs/*:../bin it.unitn.nlpir.itwiki.RelevantFlagger \
      -patterns "../trec/trec13factpats.italian.txt" \

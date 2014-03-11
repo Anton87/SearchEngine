@@ -1,3 +1,0 @@
-672
-686
-689 332\s+(coral\s*-?\s*fringed\s+)?islands
