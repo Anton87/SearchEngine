@@ -7,10 +7,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.it.ItalianAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -29,13 +31,15 @@ public class LuceneIndexer {
 		
 		String usage = "java it.unitn.nlpir.itwiki.LuceneIndexer"
 					 + " [-index INDEX_PATH] [-doc DOC_PATH]"
-					 + " [-docFilter (none|wordsNumLe5)]\n\n"
+					 + " [-analyzer CLASS_NAME] [-docFilter (none|wordsNumLe5)]\n\n"
 					 + "This indexes the documents in DOC_PATH creating a Lucene index"
 					 + "in INDEX_PATH that can be searched with LuceneRetriever";
 		
 		String indexPath = "index";
 		String docPath = null;
 		String docFilterName = "none";
+		Analyzer analyzer = null;
+		String analyzerClassname = null;
 		
 		for (int i = 0; i < args.length; i++) {
 			if ("-index".equals(args[i])) {
@@ -46,6 +50,9 @@ public class LuceneIndexer {
 				i++;
 			} else if ("-docFilter".equals(args[i])) {
 				docFilterName = args[i + 1];
+				i++;
+			} else if ("-analyzer".equals(args[i])) {
+				analyzerClassname = args[i + 1];
 				i++;
 			}
 		}
@@ -61,6 +68,20 @@ public class LuceneIndexer {
 			System.exit(-1);
 		}
 		
+		// init Analyzer
+		if (analyzerClassname != null) {
+			try {
+				analyzer = loadAnalyzer(analyzerClassname);
+				System.out.println("Loaded " + analyzerClassname + " Analyzer");
+			} catch (Exception e) {
+				System.err.println("The class '" + analyzerClassname + "' does not exist, please check the classpath");
+				System.exit(-1);
+			}			
+		} else {
+			analyzer = new StandardAnalyzer(Version.LUCENE_46);
+		}
+		
+		// init doc Filtering strategy
 		final DocumentFilter docFilter = DocumentFilter.newInstance(docFilterName);
 		
 		Date start = new Date();
@@ -78,7 +99,9 @@ public class LuceneIndexer {
 			System.out.println("Indexing to directory '" + indexPath + "'...");
 			
 			Directory indexDir = FSDirectory.open(new File(indexPath));
-			Analyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
+			
+			
+			///Analyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
 			IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_46, analyzer);
 			
 			
@@ -101,11 +124,20 @@ public class LuceneIndexer {
 			indexDoc(writer, docFile, docFilter);
 			
 			writer.close();
+			analyzer.close();
 			Date end = new Date();
 			System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 		} catch (IOException e) {
 			System.out.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
-		}
+		} 
+	}
+	
+	
+	private static Analyzer loadAnalyzer(String className) throws Exception {
+		Class<Analyzer> klass = (Class<Analyzer>) Class.forName(className);
+		Constructor<Analyzer> ctor = klass.getConstructor(Version.class);
+		Analyzer analyzer = ctor.newInstance(Version.LUCENE_46);
+		return analyzer;
 	}
 			
 	/**
