@@ -1,4 +1,4 @@
-package it.unitn.nlpir.itwiki;
+package it.unitn.nlpir.wiki;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,11 +6,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.util.Version;
 
 public class CandidateGenerator {
 	
@@ -19,9 +23,9 @@ public class CandidateGenerator {
 	public static void main(String[] args)  { 		
 		
 		String usage = "java it.unitn.nlpir.itwiki.CandidateGenerator"
-					 + " [-index INDEX_PATH] [-questions QUESTIONS_PATH]"
-					 + " [-similarity SIMILARITY_CLASSPATH] [-maxHits HITS_NUM]"
-					 + " [-candidates CANDIDATES_PATH]\n\n"
+					 + " [-index dir] [-questions file]"
+					 + " [-similarity classpath] [-analyzer classpath]"
+					 + " [-maxHits int] [-candidates file] \n\n"
 					 + "Generate candidate answers for questions in the questions File. ";
 	
 		String index = null;
@@ -29,6 +33,7 @@ public class CandidateGenerator {
 		String questions = null;
 		String candidates = null;
 		String similarity = null;
+		String analyzerClassname = null;
 		int maxHits = 10;
 		
 		for (int i = 0; i < args.length; i++) {
@@ -50,6 +55,9 @@ public class CandidateGenerator {
 			}
 			else if ("-candidates".equals(args[i])) {
 				candidates = args[i + 1];
+				i++;
+			} else if ("-analyzer".equals(args[i])) {
+				analyzerClassname = args[i + 1];
 				i++;
 			}
 		}
@@ -74,8 +82,22 @@ public class CandidateGenerator {
 			System.err.println("File '" + questionsFile.getAbsolutePath() + "' does not exist or is not redable.");
 			System.exit(-1);
 		}			
+		
+		Analyzer analyzer = null;
+		if (analyzerClassname != null) {
+			try {
+				analyzer = loadAnalyzer(analyzerClassname);
+				System.out.println("Loaded " + analyzerClassname + " analyzer");
+			} catch (Exception e) {
+				System.err.println("The class '" + analyzerClassname + "' does not exist, please check the classpath");
+				System.exit(-1);
+			}
+		} else {
+			System.out.println("analyzer is null: using StandardAnalyzer.");
+			analyzer = new StandardAnalyzer(Version.LUCENE_46);
+		}
 			
-		LuceneRetriever retriever = new LuceneRetriever(maxHits, textField, index);
+		LuceneRetriever retriever = new LuceneRetriever(maxHits, textField, analyzer, index);
 		
 		if (similarity != null) {			
 			try {
@@ -131,6 +153,13 @@ public class CandidateGenerator {
 		} catch (IOException e) {
 			System.out.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
 		}
+	}
+
+	private static Analyzer loadAnalyzer(String className) throws Exception {
+		Class<Analyzer> klass = (Class<Analyzer>) Class.forName(className);
+		Constructor<Analyzer> ctor = klass.getConstructor(Version.class);
+		Analyzer analyzer = ctor.newInstance(Version.LUCENE_46);
+		return analyzer;
 	}
 
 }

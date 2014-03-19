@@ -1,4 +1,4 @@
-package it.unitn.nlpir.itwiki;
+package it.unitn.nlpir.wiki;
 
 import java.io.BufferedReader;
 import java.io.File;

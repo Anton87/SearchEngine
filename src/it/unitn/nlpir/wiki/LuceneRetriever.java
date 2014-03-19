@@ -1,9 +1,12 @@
-package it.unitn.nlpir.itwiki;
+package it.unitn.nlpir.wiki;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.it.ItalianAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -31,12 +34,15 @@ public class LuceneRetriever {
 	private QueryParser parser;
 	private IndexSearcher searcher;
 	
-	public LuceneRetriever(int maxHits, String textField, String indexDirpath) {
+	public LuceneRetriever(int maxHits, String textField, Analyzer analyzer, String indexDirpath) {
 		if (maxHits <= 0) {
 			throw new IllegalArgumentException("maxHits must be > 0");
 		}
 		if (textField == null) {
-			throw new IllegalArgumentException("textField is null");
+			throw new NullPointerException("textField is null");
+		}
+		if (analyzer == null) { 
+			throw new NullPointerException("analyzer is null");
 		}
 		if (indexDirpath == null) {
 			throw new NullPointerException("indexDirpath is null");
@@ -49,7 +55,7 @@ public class LuceneRetriever {
 			
 			// set the new BM25 similarity measure
 			// searcher.setSimilarity(new BM25Similarity());
-			ItalianAnalyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
+			//ItalianAnalyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
 			this.maxtHits = maxHits;
 			this.parser = new QueryParser(Version.LUCENE_46, textField, analyzer);
 		} catch (IOException e) {
@@ -97,13 +103,15 @@ public class LuceneRetriever {
 	public static void main(String[] args) {
 		String usage = "java it.unitn.nlpir.itwiki.LuceneRetriever"
 					 + " [-index dir] [-query string]"
-					 + " [-maxHits hitsNum] [-similarity class]\n\n"
+					 + " [-maxHits hitsNum] [-similarity class]"
+					 + " [-analyzer classpath]\n\n"
 					 + "Print the documents satifying the query";		
 
 		int maxHits = 1;
 		String query = null;
 		String index = "index";
 		Similarity similarity = null;
+		String analyzerClassname = null;
 		
 		for (int i = 0; i < args.length; i++) {
 			if ("-index".equals(args[i])) {
@@ -131,6 +139,9 @@ public class LuceneRetriever {
 					System.exit(-1);
 				}
 				i++;
+			} else if ("analyzer".equals(args[i])) {
+				analyzerClassname = args[i + 1];
+				i++;
 			}
 		}
 		
@@ -144,8 +155,21 @@ public class LuceneRetriever {
 			System.out.println("Directory '" + indexDir.getAbsolutePath() + "' does not exist, please check the path");
 			System.exit(-1);
 		}
+		
+		Analyzer analyzer = null;		
+		if (analyzerClassname != null) {
+			try {
+				analyzer = loadAnalyzer(analyzerClassname);
+				System.out.println("Loaded " + analyzerClassname + " analyzer");
+			} catch (Exception e) {
+				System.err.println("The class '" + analyzerClassname + "' does not exist, please check the classpath");
+				System.exit(-1);
+			}
+		} else {
+			analyzer = new StandardAnalyzer(Version.LUCENE_46);
+		}
 					 
-		LuceneRetriever retriever = new LuceneRetriever(maxHits, "text", index);
+		LuceneRetriever retriever = new LuceneRetriever(maxHits, "text", analyzer, index);
 		if (similarity != null) { 
 			retriever.setSimilarity(similarity);
 		}
@@ -162,6 +186,13 @@ public class LuceneRetriever {
 			
 			System.out.println(docId + SEP + docText + SEP + rankingPos + SEP + rankingString);	
 		}
+	}
+
+	private static Analyzer loadAnalyzer(String className) throws Exception {
+		Class<Analyzer> klass = (Class<Analyzer>) Class.forName(className);
+		Constructor<Analyzer> ctor = klass.getConstructor(Version.class);
+		Analyzer analyzer = ctor.newInstance(Version.LUCENE_46);
+		return analyzer;
 	}	
 	
 }

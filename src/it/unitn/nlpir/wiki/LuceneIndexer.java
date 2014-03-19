@@ -1,4 +1,4 @@
-package it.unitn.nlpir.itwiki;
+package it.unitn.nlpir.wiki;
 
 import it.unitn.nlpir.itwiki.filters.DocumentFilter;
 
@@ -30,8 +30,8 @@ public class LuceneIndexer {
 	public static void main(String[] args) {
 		
 		String usage = "java it.unitn.nlpir.itwiki.LuceneIndexer"
-					 + " [-index INDEX_PATH] [-doc DOC_PATH]"
-					 + " [-analyzer CLASS_NAME] [-docFilter (none|wordsNumLe5)]\n\n"
+					 + " [-index dir] [-doc file]"
+					 + " [-analyzer classpath] [-docFilter (none|wordsNumLe5)]\n\n"
 					 + "This indexes the documents in DOC_PATH creating a Lucene index"
 					 + "in INDEX_PATH that can be searched with LuceneRetriever";
 		
