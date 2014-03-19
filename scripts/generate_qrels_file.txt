@@ -1,1 +1,0 @@
-cat ~/workspace-java/Itwiki/target/candidates-train2.relevant.txt | awk -F"\t" '{ gsub(/ +/, "_", $2); $5=$5=="true"; print $1,"0",$2,$5 }' > ~/workspace-java/Itwiki/target/candidates-train2.qrels.txt

@@ -1,1 +1,0 @@
-cat ~/workspace-java/Itwiki/target/candidates-train2.relevant.txt | awk -F"\t" '{ gsub(/ +/, "_", $2); print $1,"Q0",$2,$3,$4,"STANDARD" }' > ~/workspace-java/Itwiki/target/candidates-train2.top.txt
