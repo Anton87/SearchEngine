@@ -1,8 +1,18 @@
 PROJECT_HOME="/home/antonio/workspace-java/SearchEngine"
 
+analyzer="org.apache.lucene.analysis.standard.StandardAnalyzer"
+
+if [ $1 == 'en' ]
+then
+     analyzer="org.apache.lucene.analysis.en.EnglishAnalyzer"
+elif [ $1 == 'it' ]
+then
+     analyzer="org.apache.lucene.analysis.it.ItalianAnalyzer"
+fi
+
 java -cp .:$PROJECT_HOME/libs/*:$PROJECT_HOME/bin it.unitn.nlpir.wiki.CandidateGenerator \
      -index "$PROJECT_HOME/index/$1" \
-     -analyzer "org.apache.lucene.analysis.it.ItalianAnalyzer" \
+     -analyzer "$analyzer" \
      -questions "$PROJECT_HOME/trec/$1/train2393.num-recovered.questions.txt"  \
      -maxHits 100 \
      -candidates "$PROJECT_HOME/target/$1/candidates-train.txt"
@@ -12,6 +22,8 @@ java -cp .:$PROJECT_HOME/libs/*:$PROJECT_HOME/bin it.unitn.nlpir.wiki.RelevantFl
      -candidates "$PROJECT_HOME/target/$1/candidates-train.txt" \
      -relevantCandidates "$PROJECT_HOME/target/$1/candidates-train.relevant.txt" \
      -patternlib jregex
+     
+cat "../target/$1/candidates-train.relevant.txt" | awk '$6 == "true" {print $0}' > "../target/$1/candidates-train.true.txt" 
      
 cat "$PROJECT_HOME/target/$1/candidates-train.relevant.txt" | awk -F"\t" '{ gsub(/ +/, "_", $2); $5=$5=="true"; print $1,"0",$2,$5 }' > "$PROJECT_HOME/target/$1/candidates-train.qrels.txt"
 

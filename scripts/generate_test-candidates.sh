@@ -23,6 +23,8 @@ java -cp .:$PROJECT_HOME/libs/*:$PROJECT_HOME/bin it.unitn.nlpir.wiki.RelevantFl
      -relevantCandidates "$PROJECT_HOME/target/$1/candidates-test.relevant.txt" \
      -patternlib jregex
      
+cat "../target/$1/candidates-test.relevant.txt" | awk '$6 == "true" {print $0}' > "../target/$1/candidates-test.true.txt" 
+     
 cat "$PROJECT_HOME/target/$1/candidates-test.relevant.txt" | awk -F"\t" '{ gsub(/ +/, "_", $2); $5=$5=="true"; print $1,"0",$2,$5 }' > "$PROJECT_HOME/target/$1/candidates-test.qrels.txt"
 
 cat "$PROJECT_HOME/target/$1/candidates-test.relevant.txt" | awk -F"\t" 'BEGIN { OFS="\t" } { gsub(/ +/, "_", $2); print $1,"Q0",$2,$3,$4,"STANDARD" }' > "$PROJECT_HOME/target/$1/candidates-test.top.txt"
