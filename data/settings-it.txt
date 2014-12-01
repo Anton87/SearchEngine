@@ -1,0 +1,27 @@
+msg="Hello World!"
+
+
+lang="it"
+searchIndex="index/it"
+doc="../itwiki-20140127-pages-articles-multistream-paragraphs-with-lists-no-images.txt"
+analyzer="org.apache.lucene.analysis.it.ItalianAnalyzer"
+docFilter="wordsNumLe5"
+
+maxHits=100  
+patternlib=jregex
+trainQuestions="trec/it/train2393.num-recovered.questions.txt"
+testQuestions="trec/it/trec13factpats.questions.txt"
+trainCandidates="target/it/candidates-train.txt"
+testCandidates="target/it/candidates-test.txt"
+
+trainPatterns="trec/it/trec8-12.patterns"
+trainRelevantCandidates="target/it/candidates-train.relevant.txt"
+testPatterns="trec/it/trec13factpats.txt"
+testRelevantCandidates="target/it/candidates-test.relevant.txt"
+
+trainEvalFile="target/it/candidates-train.trec_eval.txt"
+testEvalFile="target/it/candidates-test.trec_eval.txt"
+
+
+
+

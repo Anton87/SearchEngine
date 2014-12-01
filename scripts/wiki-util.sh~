@@ -59,7 +59,7 @@ function removeWikipediaPages {
     fi    
     
     awk -F "\t" '$1 !~ /^Wikipedia:/ {print $0}' "$wikiFile" > "$outputWikiFile"
-    awk -F "\t" '$1  ~ /^Wikipedia:/ {print $0}' "$wikiFile" > "${wikiFile%.*}.wikipedia-pages.txt"
+    awk -F "\t" '$1  ~ /^Wikipedia:/ {print $0}' "$wikiFile" > "${wikiFile}.wikipedia-pages.txt"
     
     unset wikiFile
     unset outputWikiFile

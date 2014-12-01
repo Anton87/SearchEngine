@@ -1,0 +1,22 @@
+msg="Hello World!"
+
+lang="en"
+searchIndex="index/en"
+doc="../enwiki-20140203-pages-articles-multistream-with-lists-no-images-310.txt"
+analyzer="org.apache.lucene.analysis.en.EnglishAnalyzer"
+docFilter="wordsNumLe5"
+
+maxHits=100                                           
+patternlib=jregex
+trainQuestions="trec/en/train2393.num-recovered.questions.txt"
+testQuestions="trec/en/trec13factpats.questions.txt"
+trainCandidates="target/en/candidates-train.txt"
+testCandidates="target/en/candidates-test.txt"
+
+trainPatterns="trec/en/trec8-12.patterns"
+trainRelevantCandidates="target/en/candidates-train.relevant.txt"
+testPatterns="trec/en/trec13factpats.txt"
+testRelevantCandidates="target/en/candidates-test.relevant.txt"
+
+trainEvalFile="target/en/candidates-train.trec_eval.txt"
+testEvalFile="target/en/candidates-test.trec_eval.txt"
