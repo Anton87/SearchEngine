@@ -44,6 +44,38 @@
   		<artifactId>commons-cli</artifactId>
   		<version>1.2</version>
   	</dependency>
+  	<dependency>
+  		<groupId>jregex</groupId>
+  		<artifactId>jregex</artifactId>
+  		<version>1.2.01</version>
+  		<scope>system</scope>
+  		<systemPath>${project.basedir}/libs/jregex1.2_01.jar</systemPath>
+  	</dependency>
+  	<dependency>
+  		<groupId>lucene</groupId>
+  		<artifactId>lucene-analyzers-common</artifactId>
+  		<version>4.6.1</version>
+  		<scope>system</scope>
+  		<systemPath>${project.basedir}/libs/lucene-analyzers-common-4.6.1.jar</systemPath>
+  	</dependency>
+  	<dependency>
+  		<groupId>lucene</groupId>
+  		<artifactId>lucene-core</artifactId>
+  		<version>4.6.1</version>
+  		<scope>system</scope>
+  		<systemPath>${project.basedir}/libs/lucene-core-4.6.1.jar</systemPath>
+  	</dependency>
+  	<dependency>
+  		<groupId>lucene</groupId>
+  		<artifactId>lucene-queryparser</artifactId>
+  		<version>4.6.1</version>
+  		<scope>system</scope>
+  		<systemPath>${project.basedir}/libs/lucene-queryparser-4.6.1.jar</systemPath>
+  	</dependency>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  	</dependency>
   </dependencies>
   <parent>
   	<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
