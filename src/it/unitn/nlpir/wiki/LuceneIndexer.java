@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.Date;
-import java.util.logging.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -134,6 +133,7 @@ public class LuceneIndexer {
 	
 	
 	private static Analyzer loadAnalyzer(String className) throws Exception {
+		System.err.println("Launching " + className + "... " );
 		Class<Analyzer> klass = (Class<Analyzer>) Class.forName(className);
 		Constructor<Analyzer> ctor = klass.getConstructor(Version.class);
 		Analyzer analyzer = ctor.newInstance(Version.LUCENE_46);
@@ -185,5 +185,6 @@ public class LuceneIndexer {
 			}
 		}
 	}
+	
 
 }

@@ -2,6 +2,7 @@ package it.unitn.nlpir.itwiki.filters;
 
 import org.apache.lucene.document.Document;
 
+
 /**
  * Do not filter any document.
  *

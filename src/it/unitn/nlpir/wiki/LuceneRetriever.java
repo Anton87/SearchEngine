@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.it.ItalianAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -52,12 +51,14 @@ public class LuceneRetriever {
 			FSDirectory dir = FSDirectory.open(indexDir);
 			IndexReader reader = DirectoryReader.open(dir);
 			this.searcher = new IndexSearcher(reader);
-			
+						
 			// set the new BM25 similarity measure
 			// searcher.setSimilarity(new BM25Similarity());
 			//ItalianAnalyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
 			this.maxtHits = maxHits;
+			System.err.print("INFORMAZIONI: Setting " + analyzer.getClass().getSimpleName() + " as analyzer... ");
 			this.parser = new QueryParser(Version.LUCENE_46, textField, analyzer);
+			System.err.println("done.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -87,8 +88,9 @@ public class LuceneRetriever {
 		if (similarity == null) { 
 			throw new NullPointerException("similarity is null");
 		}
-		
+		System.err.print("INFORMAZIONI: Setting " + similarity.getClass().getSimpleName() + " as similarity... ");
 		this.searcher.setSimilarity(similarity);
+		System.err.println("done.");
 	}
 	
 	public Document getDocumentById(int id) {
@@ -176,6 +178,7 @@ public class LuceneRetriever {
 		
 		TopDocs hits = retriever.retrieve(query);
 		ScoreDoc[] scoreDocs = hits.scoreDocs;
+		
 		
 		for (int i = 0; i < scoreDocs.length; i++) {
 			Document doc = retriever.getDocumentById(scoreDocs[i].doc);
