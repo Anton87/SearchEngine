@@ -1,9 +1,10 @@
-package it.unitn.nlpir.itwiki.ssplitter;
+package it.unitn.nlpir.itwiki.segmenter;
 
 import static org.apache.uima.fit.factory.AnalysisEngineFactory.createEngine;
 import it.unitn.nlpir.italian.textpro.TextProSegmenter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -15,6 +16,7 @@ import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.uima.UIMAException;
@@ -60,9 +62,16 @@ public class WikiParagraphsSegmenter {
 		options.addOption(WIKI_CORPUS_PATH_OPT, true,
 				"The path of the file containing wikipedia corpus");
 		options.addOption(WIKI_CORPUS_SEGMENTED_PATH_OPT, true, 
-				"The path where to save the wikipedia segmented corpus");
-		options.addOption(SENTENCES_NUM_PER_LOG_OPT, true, 
-				"The number of sentences to process before printing a log message");
+				"The path where to save the wikipedia segmented corpus");		
+		options.addOption(
+				OptionBuilder
+				.withLongOpt(SENTENCES_NUM_PER_LOG_OPT)
+				.withDescription("The number of sentences to process before printing a log message")
+				.hasArg()
+				.isRequired(false)
+				.create());
+		//options.addOption(SENTENCES_NUM_PER_LOG_OPT, true, 
+		//		"The number of sentences to process before printing a log message");
 
 		CommandLineParser parser = new BasicParser();
 		try {
@@ -148,6 +157,7 @@ public class WikiParagraphsSegmenter {
 			int totalLinesNum = 0;
 			PrintWriter out = 
 					new PrintWriter(
+							//new BufferedWriter(new FileWriter(outputWikiFilePath)));
 							new FileWriter(outputWikiFilePath));
 			String line = null;
 			try (BufferedReader in = 
@@ -180,7 +190,6 @@ public class WikiParagraphsSegmenter {
 						Date now = new Date();
 						System.out.printf("Processed %d lines from file: %s... (%d total milliseconds elapsed) \n", 
 								totalLinesNum, wikiFilePath, now.getTime() - start.getTime());
-						out.flush();
 					}
 				}				
 				Date end = new Date();
@@ -189,8 +198,7 @@ public class WikiParagraphsSegmenter {
 				System.err.println("Error while processing line num. " + totalLinesNum + " ... ");
 				System.err.println(line);
 				System.err.println(totalLinesNum + 1);
-			}
-				finally {
+			} finally {
 				out.close();
 			}
 		} catch (ParseException e) {

@@ -3,7 +3,7 @@ msg="Hello World!"
 # indexing params
 lang="it"
 searchIndex="index/it"
-doc="data/itwiki-20140127-pages-articles-multistream-paragraphs-with-lists-no-images.cleaned.openNlp-segmented.txt"
+doc="data/itwiki-20140127-pages-articles-multistream-paragraphs-with-lists-no-images.cleaned.txt"
 analyzer="org.apache.lucene.analysis.it.ItalianAnalyzer"
 docFilter="wordsNumLe5"
 index_stdout="data/index.out"

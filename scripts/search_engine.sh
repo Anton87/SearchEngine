@@ -33,6 +33,8 @@ function index {
     echo "doc = \"$doc\""
     echo "analyzer = \"$analyzer\""
     echo "docFilter = \"$docFilter\""
+    echo "index_stdout = \" $index_stdout \""
+    echo "index_stderr = \" $index_stderr \""
     
     echo "java -cp \$CLASSPATH it.unitn.nlpir.wiki.LuceneIndexer" 
     echo "     -index \"$searchIndex\""
@@ -40,7 +42,7 @@ function index {
     echo "     -analyzer \"$analyzer\""
     echo "     -docFilter \"$docFilter\""
     
-    java -cp $CLASSPATH it.unitn.nlpir.wiki.LuceneIndexer -index "$searchIndex" -doc "$doc" -analyzer $analyzer -docFilter $docFilter    
+    java -cp $CLASSPATH it.unitn.nlpir.wiki.LuceneIndexer -index "$searchIndex" -doc "$doc" -analyzer $analyzer -docFilter $docFilter > "$index_stdout" 2> "$index_stderr"
     echo "done"
 }
 
@@ -70,16 +72,47 @@ function generateCandidates {
     echo "analyzer = $analyzer"
     echo "questions = $questions"    
     echo "maxHits = $maxHits"
+    if [ ! -z "$similarity" ]; then echo "similarity = $similarity"; fi
     echo "candidates = $candidates"
-    
+    echo "maxHits = $maxHits"
+    echo "numHits = $numHits"
     echo 
     
-    java -cp $CLASSPATH it.unitn.nlpir.wiki.CandidateGenerator \
-         -index "$searchIndex" \
-         -analyzer $analyzer   \
-         -questions $questions \
-         -maxHits 100   \
-         -candidates $candidates
+    echo "java -cp \$CLASSPATH it.unitn.nlpir.wiki.CandidateGenerator"
+    echo "     -index $searchIndex"
+    echo "     -analyzer $analyzer"
+    if [ ! -z "$similarity" ]; then 
+        echo "     -similarity $similarity"
+    fi
+    echo "     -questions \"$questions\""
+    echo "     -candidates \"$candidates\""
+    echo "     -numHits \"$numHits\""
+    echo "     -maxHits \"$maxHits\""
+    
+    
+    cmd="java -cp $CLASSPATH it.unitn.nlpir.wiki.CandidateGenerator "
+    cmd="$cmd -index $searchIndex "
+    cmd="$cmd -analyzer $analyzer "
+    cmd="$cmd -questions $questions "
+    cmd="$cmd -candidates $candidates "
+    cmd="$cmd -numHits $numHits "
+    cmd="$cmd -maxHits $maxHits "
+    if [ ! -z "$similarity" ]; then
+        cmd="$cmd -similarity $similarity"
+    fi
+    cmd="$cmd > $cgen_stdout 2> $cgen_stderr"
+    eval $cmd
+    
+
+#    java -cp $CLASSPATH it.unitn.nlpir.wiki.CandidateGenerator \
+#         -index "$searchIndex" \
+#         -analyzer $analyzer   \
+#         -questions $questions \
+#         -similarity if 
+#         -numHits 40    \
+#         -maxHits 200   \
+#         -candidates $candidates
+#   
 }
 
 function flagRelevants {

@@ -180,7 +180,7 @@ public class CandidateGenerator {
 			out.close();
 			outDup.close();
 		} catch (IOException e) {
-			System.out.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
+			System.err.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
 			e.printStackTrace();
 		} 
 	}

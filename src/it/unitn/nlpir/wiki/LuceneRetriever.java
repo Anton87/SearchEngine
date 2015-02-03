@@ -56,9 +56,9 @@ public class LuceneRetriever {
 			// searcher.setSimilarity(new BM25Similarity());
 			//ItalianAnalyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
 			this.maxtHits = maxHits;
-			System.err.print("INFORMAZIONI: Setting " + analyzer.getClass().getSimpleName() + " as analyzer... ");
+			System.out.print("INFORMAZIONI: Setting " + analyzer.getClass().getSimpleName() + " as analyzer... ");
 			this.parser = new QueryParser(Version.LUCENE_46, textField, analyzer);
-			System.err.println("done.");
+			System.out.println("done.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -88,9 +88,9 @@ public class LuceneRetriever {
 		if (similarity == null) { 
 			throw new NullPointerException("similarity is null");
 		}
-		System.err.print("INFORMAZIONI: Setting " + similarity.getClass().getSimpleName() + " as similarity... ");
+		System.out.print("INFORMAZIONI: Setting " + similarity.getClass().getSimpleName() + " as similarity... ");
 		this.searcher.setSimilarity(similarity);
-		System.err.println("done.");
+		System.out.println("done.");
 	}
 	
 	public Document getDocumentById(int id) {
@@ -154,13 +154,14 @@ public class LuceneRetriever {
 		
 		final File indexDir = new File(index);
 		if (!indexDir.isDirectory()) {
-			System.out.println("Directory '" + indexDir.getAbsolutePath() + "' does not exist, please check the path");
+			System.err.println("Directory '" + indexDir.getAbsolutePath() + "' does not exist, please check the path");
 			System.exit(-1);
 		}
 		
 		Analyzer analyzer = null;		
 		if (analyzerClassname != null) {
 			try {
+				System.err.println("analyzerClassname: " + analyzerClassname);
 				analyzer = loadAnalyzer(analyzerClassname);
 				System.out.println("Loaded " + analyzerClassname + " analyzer");
 			} catch (Exception e) {

@@ -5,11 +5,14 @@ import it.unitn.nlpir.itwiki.filters.DocumentFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.util.Date;
 
+import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -23,6 +26,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+
+import util.StringUtil;
 
 public class LuceneIndexer {
 	
@@ -63,25 +68,39 @@ public class LuceneIndexer {
 		
 		final File docFile = new File(docPath);
 		if (!docFile.isFile() || !docFile.canRead()) {
-			System.out.println("File '" + docFile.getAbsolutePath() + "' does not exist or is not redable, please check the path");
+			System.err.println("File '" + docFile.getAbsolutePath() + "' does not exist or is not redable, please check the path");
 			System.exit(-1);
 		}
 		
 		// init Analyzer
 		if (analyzerClassname != null) {
+			System.out.print("Loading " + analyzerClassname + "... ");
 			try {
 				analyzer = loadAnalyzer(analyzerClassname);
-				System.out.println("Loaded " + analyzerClassname + " Analyzer");
+				//System.out.println("Loaded " + analyzerClassname + " Analyzer");
+				System.out.println("done");
 			} catch (Exception e) {
-				System.err.println("The class '" + analyzerClassname + "' does not exist, please check the classpath");
+				System.out.println("failed");
+				System.err.println("The Analyzer with name " + analyzerClassname + " not found. ");
 				System.exit(-1);
 			}			
 		} else {
 			analyzer = new StandardAnalyzer(Version.LUCENE_46);
+			System.err.println("Analyzer not specified. " + 
+							   "Failing back to the analyzer " + analyzer.getClass().getName());
 		}
 		
+		System.out.println(LuceneIndexer.class.getSimpleName() + " [");
+		System.out.println("    -index: " + indexPath);
+		System.out.println("	-doc: " + docPath);
+		System.out.println("    -docFilter: " + docFilterName);
+		System.out.println("    -analyzer: " + analyzerClassname);
+		System.out.println("]");
+		
 		// init doc Filtering strategy
+		System.out.print("INFORMAZIONI: Loading " + docFilterName + "... ");
 		final DocumentFilter docFilter = DocumentFilter.newInstance(docFilterName);
+		System.out.println("done");
 		
 		Date start = new Date();
 		
@@ -101,7 +120,9 @@ public class LuceneIndexer {
 			
 			
 			///Analyzer analyzer = new ItalianAnalyzer(Version.LUCENE_46);
+			System.out.print("INFORMAZIONI: Setting " + analyzer.getClass().getSimpleName() + " as analyzer... ");
 			IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_46, analyzer);
+			System.out.println("done");
 			
 			
 			//File indexDir = new File(itwikiIndexDirpath);
@@ -127,13 +148,15 @@ public class LuceneIndexer {
 			Date end = new Date();
 			System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 		} catch (IOException e) {
-			System.out.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
+			System.err.println(" caught a " + e.getClass() + "\n with message: " + e.getMessage() );
 		} 
 	}
 	
 	
 	private static Analyzer loadAnalyzer(String className) throws Exception {
-		System.err.println("Launching " + className + "... " );
+		assert className != null;
+		
+		System.out.println("Launching " + className + "... " );
 		Class<Analyzer> klass = (Class<Analyzer>) Class.forName(className);
 		Constructor<Analyzer> ctor = klass.getConstructor(Version.class);
 		Analyzer analyzer = ctor.newInstance(Version.LUCENE_46);
@@ -149,7 +172,18 @@ public class LuceneIndexer {
 	private static void indexDoc(IndexWriter writer, File docFile, DocumentFilter docFilter) throws IOException  {
 		assert writer != null;
 		assert docFile != null;
-		assert docFilter != null;
+		assert docFilter != null;		
+
+		/**
+		 * Write on a file all the documents which have been skipped 
+		 *  because they DIDN'T SATISFY the documents filter constraints 
+		 */
+		String skippedDocsFilepath = StringUtil.stripExtension(docFile.getPath()) + ".skipped.txt";
+		
+		PrintWriter out = 
+				new PrintWriter(
+						new WriterOutputStream(
+								new FileWriter(skippedDocsFilepath), "UTF-8"));
 		
 		try (BufferedReader br = 
 				new BufferedReader(
@@ -157,7 +191,7 @@ public class LuceneIndexer {
 								new FileInputStream(docFile), "UTF-8"))) {
 			int  lineNum = 0;
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				String[] linesplit = line.split("\t");
+				String[] linesplit = line.trim().split("\t");
 				
 				if (linesplit.length != 3) {
 					throw new IOException("Format error at line num: " + lineNum);
@@ -176,14 +210,15 @@ public class LuceneIndexer {
 				
 				if (!docFilter.isFiltered(doc)) {
 					writer.updateDocument(new Term("docId", docId), doc);
+				} else {
+					System.out.printf("Filtered document with id '%s' and text '%s'\n", docId, text);
+					out.println(line.trim());
 				}
-				//} else {
-				//	System.out.printf("Filtered document with id '%s' and text '%s'\n", docId, text);
-				//}
 				
 				lineNum++;
 			}
 		}
+		out.close();
 	}
 	
 
