@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -30,6 +31,8 @@ import util.StringUtil;
 
 public class CandidateGenerator {
 	
+	private static Logger logger = Logger.getLogger(LuceneRetriever.class);
+		
 	private static ClassLoader classLoader = CandidateGenerator.class.getClassLoader();
 	
 	private static final String FS = "\t"; // field separator
@@ -139,8 +142,19 @@ public class CandidateGenerator {
 				String query = lineSplit[1]; // The question to process
 				
 				TopDocs hits = null;
+				
+				String processedQuery = query
+						.replaceAll("[^A-Za-z0-9]", " ");
+				
+				/* Escape Lucene boolean operators (AND, NOT, OR, + and -) */
+				if (QueryUtil.containBoolOperators(processedQuery)) {
+					logger.info("query " + processedQuery + " contain boolean operators - " + processedQuery);
+					processedQuery = QueryUtil.getBoolEscapedQuery(processedQuery);
+					logger.info("new query "  + qid + " - " + processedQuery);
+				}
+				
 				try { 
-					hits = retriever.retrieve(query);
+					hits = retriever.retrieve(processedQuery);
 				} catch (ParseException e) { 
 					System.err.println("Error while processing question: " + line);
 					System.err.flush();

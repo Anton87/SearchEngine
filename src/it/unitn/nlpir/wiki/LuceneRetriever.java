@@ -1,8 +1,8 @@
 package it.unitn.nlpir.wiki;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import org.apache.log4j.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -69,11 +69,14 @@ public class LuceneRetriever {
 			throw new NullPointerException("query is null");
 		}
 		
-		String processedQuery = query.replaceAll("[^A-Za-z0-9]", " ");
+		
+		
+		
+			
 		TopDocs hits = new TopDocs(0, null, 0);
 		Query q;
 		try {
-			q = this.parser.parse(processedQuery);
+			q = this.parser.parse(query);
 			// q = this.parser.parse(query);
 			hits = this.searcher.search(q, this.maxtHits);
 		}  catch (IOException e) {
