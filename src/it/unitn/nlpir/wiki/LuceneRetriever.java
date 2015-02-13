@@ -1,8 +1,8 @@
 package it.unitn.nlpir.wiki;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import org.apache.log4j.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -64,21 +64,22 @@ public class LuceneRetriever {
 		}
 	}
 	
-	public TopDocs retrieve(String query) {
+	public TopDocs retrieve(String query) throws ParseException {
 		if (query == null) {
 			throw new NullPointerException("query is null");
 		}
 		
-		String processedQuery = query.replaceAll("[^A-Za-z0-9]", " ");
+		
+		
+		
+			
 		TopDocs hits = new TopDocs(0, null, 0);
 		Query q;
 		try {
-			q = this.parser.parse(processedQuery);
+			q = this.parser.parse(query);
 			// q = this.parser.parse(query);
 			hits = this.searcher.search(q, this.maxtHits);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		}  catch (IOException e) {
 			e.printStackTrace();
 		}
 		return hits;
@@ -177,18 +178,23 @@ public class LuceneRetriever {
 			retriever.setSimilarity(similarity);
 		}
 		
-		TopDocs hits = retriever.retrieve(query);
-		ScoreDoc[] scoreDocs = hits.scoreDocs;
+		try {
+			TopDocs hits = retriever.retrieve(query);
+			ScoreDoc[] scoreDocs = hits.scoreDocs;
 		
 		
-		for (int i = 0; i < scoreDocs.length; i++) {
-			Document doc = retriever.getDocumentById(scoreDocs[i].doc);
-			String docId = doc.get("docId");
-			String docText = doc.get("text");
-			String rankingPos = Integer.toString(i + 1);
-			String rankingString = String.valueOf(scoreDocs[i].score);
+			for (int i = 0; i < scoreDocs.length; i++) {
+				Document doc = retriever.getDocumentById(scoreDocs[i].doc);
+				String docId = doc.get("docId");
+				String docText = doc.get("text");
+				String rankingPos = Integer.toString(i + 1);
+				String rankingString = String.valueOf(scoreDocs[i].score);
 			
-			System.out.println(docId + SEP + docText + SEP + rankingPos + SEP + rankingString);	
+				System.out.println(docId + SEP + docText + SEP + rankingPos + SEP + rankingString);	
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
